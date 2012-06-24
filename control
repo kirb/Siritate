@@ -1,5 +1,6 @@
 Package: ws.hbang.siritate
 Name: Siritate
+Pre-Depends: cy+model.ipad (<< 3.1), firmware (<< 6.0)
 Depends: mobilesubstrate, gsc.ipad
 Version: 1.1~beta1
 Architecture: iphoneos-arm
