@@ -1,47 +1,38 @@
-#import <UIKit/UIDevice2.h>
+UIDeviceOrientation oldorient = UIDeviceOrientationPortrait;
+UIInterfaceOrientation apporient = UIInterfaceOrientationPortrait;
+BOOL hasSiri = NO;
 
-UIDeviceOrientation oldorient=UIDeviceOrientationPortrait;
-UIInterfaceOrientation apporient=UIInterfaceOrientationPortrait;
-BOOL hasSiri=NO;
-#if DEBUG
-int debugorient=1000;
-#endif
+@interface UIDevice (Private)
+-(void)setOrientation:(UIDeviceOrientation)orientation;
+@end
 
 %hook SBAssistantController
--(void)viewDidAppear{
-	hasSiri=YES;
+-(void)viewDidAppear {
+	hasSiri = YES;
 	%orig;
 }
--(void)viewWillAppear{
-	#if DEBUG
-	NSLog(@"[Siritate] I haz %@ as interface orientation",debugorient);
-	#endif
-	if(UIDeviceOrientationIsLandscape(oldorient=[[UIDevice currentDevice]orientation])){
+-(void)viewWillAppear {
+	if (UIDeviceOrientationIsLandscape(oldorient = [UIDevice currentDevice].orientation)){
 		[[UIDevice currentDevice]setOrientation:UIDeviceOrientationPortrait];
-		apporient=[[UIApplication sharedApplication]statusBarOrientation];
-		[[UIApplication sharedApplication]setStatusBarOrientation:UIInterfaceOrientationPortrait];
+		apporient = [[UIApplication sharedApplication] statusBarOrientation];
+		[[UIApplication sharedApplication] setStatusBarOrientation:UIInterfaceOrientationPortrait];
 	}
 	%orig;
 }
--(void)viewWillDisappear{
-	hasSiri=NO;
+-(void)viewWillDisappear {
+	hasSiri = NO;
 	%orig;
 }
--(void)viewDidDisappear{
-	if(UIDeviceOrientationIsLandscape(oldorient)){
-		[[UIApplication sharedApplication]setStatusBarOrientation:apporient];
-		[[UIDevice currentDevice]setOrientation:oldorient];
+-(void)viewDidDisappear {
+	if (UIDeviceOrientationIsLandscape(oldorient)) {
+		[[UIApplication sharedApplication] setStatusBarOrientation:apporient];
+		[[UIDevice currentDevice] setOrientation:oldorient];
 	}
 	%orig;
 }
 %end
 %hook SBUIController
--(BOOL)window:(id)window shouldAutorotateToInterfaceOrientation:(int)interfaceOrientation{
-	#if DEBUG
-	debugorient=interfaceOrientation;
-	return %orig;
-	#else
-	return (hasSiri&&UIInterfaceOrientationIsPortrait(interfaceOrientation))?NO:%orig;
-	#endif
+-(BOOL)window:(id)window shouldAutorotateToInterfaceOrientation:(int)interfaceOrientation {
+	return (hasSiri && UIInterfaceOrientationIsPortrait(interfaceOrientation)) ? NO : %orig;
 }
 %end
